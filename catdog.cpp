@@ -20,6 +20,51 @@ bool findConflicts(string c, string d){
 
 }
 
+#if 1
+//bpGraph[M][N]
+bool bpm(vector<vector<bool> > &bpGraph, int u, bool seen[], int matchR[])
+{
+    for (int v = 0; v < bpGraph.size(); v++)    {
+        if (bpGraph[u][v] && !seen[v])        {
+            seen[v] = true; // Mark v as visited
+            if (matchR[v] < 0 || bpm(bpGraph, matchR[v], seen, matchR)){
+                matchR[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+ 
+// Returns maximum number of matching from M to N
+int maxBPM(vector<vector<bool> > &bpGraph)
+{
+
+    int matchR[bpGraph[0].size()];
+ 
+    memset(matchR, -1, sizeof(matchR));
+ 
+    int result = 0; 
+    for (int u = 0; u < bpGraph.size(); u++)
+    {
+
+        bool seen[bpGraph[0].size()];
+        memset(seen, 0, sizeof(seen));
+ 
+
+        if (bpm(bpGraph, u, seen, matchR))
+            result++;
+    }
+    return result;
+}
+#endif
+
+void initMatrix(vector<vector<bool> > &bpGraph,int rows, int cols){
+  for(int i=0; i < rows; i ++){
+      vector<bool> temp(cols,false);
+      bpGraph.push_back(temp);
+  }
+}
 
 int main(){
   int n;
@@ -34,12 +79,8 @@ int main(){
 #if DUMP
     cerr << c << " " << d << " " << v << endl;
 #endif
-    bool bip[c][d];
-    for(int i=0; i<c;i++){
-      for(int j=0; j<d;j++){
-        bip[i][j]=0;
-      }
-    }
+    vector<vector<bool> > bip;
+    initMatrix(bip,c,d);
 
     vector<string> cats;
     vector<string> dogs;
@@ -82,7 +123,7 @@ int main(){
       cerr << endl<< "------------------------------------------";
       cerr << endl;
 #endif
-      int result = 0;
+      int result = maxBPM(bip);
 
       //to get maximum bipartite matching, we must consider vertices with less number of edges first. recursively assess
 
@@ -91,108 +132,74 @@ int main(){
   }
 }
 
- #if 0  
-      //bfs/dfs
-      bool visited[V];
-      memset(visited, 0, sizeof(visited));
- 
+ #if 0 
+
+
+int s=0;
+int t=c;
+queue <int> q;
+q.push(s);
+visited[s] = true;
+parent[s] = -1;
+bool visited[V];
+memset(visited, 0, sizeof(visited));
+
+
+int u, v;
+bool bfs;
+int rGraph[c][d];  
+for (u = 0; u < c; u++)
+{
+  for (v = 0; v < d; v++)
+  {
+    rGraph[u][v] = (int)bip[u][v];
+  }
+}
+int parent[c];
+int max_flow = 0;
+
+while (bfs)
+{
+  
+  while (!q.empty())
+  {
+    int u = q.front();
+    q.pop();
+
+    for (int v=0; v<V; v++)
+    {
+      if (visited[v]==false && rGraph[u][v] > 0)
+      {
+        q.push(v);
+        parent[v] = u;
+        visited[v] = true;
+      }
+    }
+  }
+  bfs = visited[v];
+  q.push(s);
+}
+
+int path_flow = INT_MAX;
+for (v = t; v != s; v = parent[v])
+{
+  u = parent[v];
+  path_flow = min(path_flow, rGraph[u][v]);
+}
+for (v = t; v != s; v = parent[v])
+{
+  u = parent[v];
+  rGraph[u][v] -= path_flow;
+  rGraph[v][u] += path_flow;
+}
+max_flow += path_flow;
+}
+
+result = max_flow;
+
     // Create a queue, enqueue source vertex and mark source vertex
     // as visited
-    queue <int> q;
-    q.push(s);
-    visited[s] = true;
-    parent[s] = -1;
- 
-    // Standard BFS Loop
-    while (!q.empty())
-    {
-        int u = q.front();
-        q.pop();
- 
-        for (int v=0; v<V; v++)
-        {
-            if (visited[v]==false && rGraph[u][v] > 0)
-            {
-                q.push(v);
-                parent[v] = u;
-                visited[v] = true;
-            }
-        }
-    }
-      
-    //end dfs
-    //
-int fordFulkerson(int graph[6][6], int s, int t)
-{
-    int u, v;
-    int rGraph[6][6];  
-    for (u = 0; u < 6; u++)
-    {
-        for (v = 0; v < 6; v++)
-        {
-            rGraph[u][v] = graph[u][v];
-        }
-    }
-    int parent[6];
-    int max_flow = 0;
-    while (bfs(rGraph, s, t, parent))
-    {
-        int path_flow = INT_MAX;
-        for (v = t; v != s; v = parent[v])
-        {
-            u = parent[v];
-            path_flow = min(path_flow, rGraph[u][v]);
-        }
-        for (v = t; v != s; v = parent[v])
-        {
-            u = parent[v];
-            rGraph[u][v] -= path_flow;
-            rGraph[v][u] += path_flow;
-        }
-        max_flow += path_flow;
-    }
-    return max_flow;
-}
-#endif
+        // Standard BFS Loop
+    #endif
 
-#if 0
-//bpGraph[M][N]
-bool bpm(bool **bpGraph,int M, int N, int u, bool seen[], int matchR[])
-{
-    for (int v = 0; v < N; v++)    {
-        if (bpGraph[u][v] && !seen[v])        {
-            seen[v] = true; // Mark v as visited
-            if (matchR[v] < 0 || bpm(bpGraph,M,N, matchR[v], seen, matchR)){
-                matchR[v] = u;
-                return true;
-            }
-        }
-    }
-    return false;
-}
- 
-// Returns maximum number of matching from M to N
-int maxBPM(bool bpGraph[M][N])
-{
-
-    int matchR[N];
- 
-    memset(matchR, -1, sizeof(matchR));
- 
-    int result = 0; 
-    for (int u = 0; u < M; u++)
-    {
-
-        bool seen[N];
-        memset(seen, 0, sizeof(seen));
- 
-
-        if (bpm(bpGraph, u, seen, matchR))
-            result++;
-    }
-    return result;
-}
-#endif
-
-   
 
