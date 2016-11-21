@@ -46,10 +46,12 @@ int main(){
 
     for(int VOTERS =0; VOTERS < v; VOTERS++){
       string stay,leave;
-      cin >> stay,leave;
+      cin >> stay >>leave;
 
       string choice = stay + " " + leave;
-      
+#if DUMP
+      cerr << choice << endl;
+#endif
       if(choice[0] == 'C'){
         cats.push_back(choice);
       }
@@ -60,12 +62,24 @@ int main(){
     }
 #if DUMP
     //BEGIN DUMP
+    cerr << endl;
+    cerr << "xxxxx |";
+    for(int i=0; i < cats.size(); i++){
+      cerr << cats[i] << "|";
+    }
+    cerr << endl;
+    int dogcounter =0;
     for(int i=0; i<d;i++){
+      cerr << dogs[dogcounter] << " |  ";
+      dogcounter = (++dogcounter > dogs.size() ?dogs.size() : dogcounter);
       for(int j=0; j<c;j++){
-        cerr << bip[j][i];
+        cerr  <<  bip[j][i] << "  |  ";
       }
+      cerr  << endl;
     }
 
+      cerr << endl<< "------------------------------------------";
+      cerr << endl;
 #endif
   }
 }
