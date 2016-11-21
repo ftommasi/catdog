@@ -1,16 +1,11 @@
 #include <vector>
 #include <string>
+#include "edge.cpp"
 using namespace std;
 
-struct Edge{
-    Vertex u;
-    Vertex v;
-    int capacity;
-    
-}edge;
-string print(Edge e){
-  return "---"+string(e.capacity)+"--->";
-}
+#define VERTEX_H
+
+class Edge;
 
 class Vertex{
   private: 
@@ -59,11 +54,11 @@ class Vertex{
     vector<Vertex> viewNeighbors(){
       vector<Vertex> neighbors();
       for(int i=0; i<edges.size();i++){
-        if(edges[i].u != this){
-          neighbors.push_back(edges[i].u);
+        if(edges[i].getU() != this){
+          neighbors.push_back(edges[i].getU());
         }
         else if(edges[i].getV() != this){
-          neighbors.push_back(edges[i].v);
+          neighbors.push_back(edges[i].getV());
         }
       }
       return neighbors;
@@ -72,13 +67,13 @@ class Vertex{
     string print(){
       string subtree = choice;
       for(int i=0; i<edges.size();i++){
-        if(edges[i].u != this){
+        if(edges[i].getU() != this){
           subtree += edges[i].print();
-          subtree += edges[i].u.getChoice();
+          subtree += edges[i].getU().getChoice();
         }
-        else if(edges[i].v != this){
+        else if(edges[i].getV() != this){
           subtree += edges[i].print();
-          subtree += edges[i].v`.getChoice();
+          subtree += edges[i].getV().getChoice();
         }
       }
       return subtree;

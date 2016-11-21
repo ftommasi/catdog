@@ -1,1 +1,1 @@
-cat in |  python catdog.py
+cat in | python catdog.py

@@ -2,7 +2,7 @@
 class Vertex:
   def __init__(self,choice = ""):
     self._edges = []
-    self._choice = choice
+    self.choice = choice
   def addEdge(self,e):
     self._edges.append(e)
   
@@ -21,15 +21,16 @@ class Vertex:
           neigh.append(edge.getV())
     
     return neigh
+  
 
   def getChoice(self):
-    return self._choice
+    return self.choice
   
   def setChoice(self,c):
-    self._choice = c
+    self.choice = c
 
   def __str__(self):
-    result = self._choice
+    result = self.choice
     for edge in self._edges:
       if edge.getU() is not self and edge.getU() is not None :
         result += str(edge)
@@ -76,7 +77,7 @@ class Edge:
 if __name__ == "__main__":
   v = Vertex("V")
   e = Edge()
-  v.addEdge(e)
+  #v.addEdge(e)
   v.getEdges()
   v2 = Vertex("V1")
   e2 = Edge(v,v2,1,)
@@ -98,5 +99,5 @@ if __name__ == "__main__":
   e.setU(v)
   e.setV(v2)
   e.setCap(10)
-  print e2.__str__()
+  #print e2.__str__()
 #ENDEDGE
