@@ -1,1 +1,2 @@
-cat in | python catdog.py
+cat sample | ./catdog
+cat in | ./catdog 

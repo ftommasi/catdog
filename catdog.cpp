@@ -5,29 +5,39 @@
 
 using namespace std;
 
-#define DUMP 1
+#define DUMP 0
 
 bool findConflicts(string c, string d){
   string catstart = c.substr(0,2);
   string dogstart = d.substr(0,2);
   string catend = c.substr(3,2);
   string dogend = d.substr(3,2);
-  
-  if(catstart.compare(dogstart) == 0 || catend.compare(dogstart) == 0)
+  //cerr << "in " << c << " " << d << endl << "checking if " << cats  
+  if(catstart.compare(dogend) == 0 || catend.compare(dogstart) == 0)
     return true;
 
   return false;
 
 }
 
-#if 1
-//bpGraph[M][N]
-bool bpm(vector<vector<bool> > &bpGraph, int u, bool seen[], int matchR[])
+bool bpm(vector<vector<bool> >&bpGraph, int u, bool seen[], int matchR[])
 {
-    for (int v = 0; v < bpGraph.size(); v++)    {
-        if (bpGraph[u][v] && !seen[v])        {
+    // Try every job one by one
+    for (int v = 0; v < bpGraph[0].size(); v++)
+    {
+        // If applicant u is interested in job v and v is
+        // not visited
+        if (bpGraph[u][v] && !seen[v])
+        {
             seen[v] = true; // Mark v as visited
-            if (matchR[v] < 0 || bpm(bpGraph, matchR[v], seen, matchR)){
+ 
+            // If job 'v' is not assigned to an applicant OR
+            // previously assigned applicant for job v (which is matchR[v]) 
+            // has an alternate job available. 
+            // Since v is marked as visited in the above line, matchR[v] 
+            // in the following recursive call will not get job 'v' again
+            if (matchR[v] < 0 || bpm(bpGraph, matchR[v], seen, matchR))
+            {
                 matchR[v] = u;
                 return true;
             }
@@ -37,27 +47,30 @@ bool bpm(vector<vector<bool> > &bpGraph, int u, bool seen[], int matchR[])
 }
  
 // Returns maximum number of matching from M to N
-int maxBPM(vector<vector<bool> > &bpGraph)
+int maxBPM(vector<vector<bool> >&bpGraph)
 {
-
+    // An array to keep track of the applicants assigned to
+    // jobs. The value of matchR[i] is the applicant number
+    // assigned to job i, the value -1 indicates nobody is
+    // assigned.
     int matchR[bpGraph[0].size()];
  
+    // Initially all jobs are available
     memset(matchR, -1, sizeof(matchR));
  
-    int result = 0; 
+    int result = 0; // Count of jobs assigned to applicants
     for (int u = 0; u < bpGraph.size(); u++)
     {
-
+        // Mark all jobs as not seen for next applicant.
         bool seen[bpGraph[0].size()];
         memset(seen, 0, sizeof(seen));
  
-
+        // Find if the applicant 'u' can get a job
         if (bpm(bpGraph, u, seen, matchR))
             result++;
     }
     return result;
 }
-#endif
 
 void initMatrix(vector<vector<bool> > &bpGraph,int rows, int cols){
   for(int i=0; i < rows; i ++){
@@ -80,7 +93,6 @@ int main(){
     cerr << c << " " << d << " " << v << endl;
 #endif
     vector<vector<bool> > bip;
-    initMatrix(bip,c,d);
 
     vector<string> cats;
     vector<string> dogs;
@@ -102,6 +114,14 @@ int main(){
       }
         
     }
+    initMatrix(bip,cats.size(),dogs.size());
+    for(int i=0; i < cats.size(); i++){
+      for(int j=0; j < dogs.size(); j++){
+        if(findConflicts(cats[i],dogs[j])){
+          bip[i][j] = true;    
+        } 
+      }
+    }
 #if DUMP
     //BEGIN DUMP
     cerr << endl;
@@ -111,10 +131,10 @@ int main(){
     }
     cerr << endl;
     int dogcounter =0;
-    for(int i=0; i<d;i++){
+    for(int i=0; i<bip[0].size();i++){
       cerr << dogs[dogcounter] << " |  ";
       dogcounter = (++dogcounter > dogs.size() ?dogs.size() : dogcounter);
-      for(int j=0; j<c;j++){
+      for(int j=0; j<bip.size();j++){
         cerr  <<  bip[j][i] << "  |  ";
       }
       cerr  << endl;
@@ -123,12 +143,17 @@ int main(){
       cerr << endl<< "------------------------------------------";
       cerr << endl;
 #endif
-      int result = maxBPM(bip);
+      int result = v - maxBPM(bip);
 
       //to get maximum bipartite matching, we must consider vertices with less number of edges first. recursively assess
-
-      cout << result;
-
+#if DUMP
+      cerr << endl<< "------------------------------------------" << endl;
+      cerr << "RESULT IS: " << endl;
+#endif
+      cout << result << endl;
+#if DUMP
+      cerr << endl<< "------------------------------------------" << endl;
+#endif
   }
 }
 
@@ -202,4 +227,5 @@ result = max_flow;
         // Standard BFS Loop
     #endif
 
+//----------------------------------------------------------------------------------------
 
