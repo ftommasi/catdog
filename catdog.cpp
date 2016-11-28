@@ -21,20 +21,13 @@ bool findConflicts(string c, string d){
 
 bool bpm(vector<vector<bool> >&bpGraph, int u, bool seen[], int matchR[])
 {
-    // Try every job one by one
     for (int v = 0; v < bpGraph[0].size(); v++)
     {
-        // If applicant u is interested in job v and v is
-        // not visited
+        
         if (bpGraph[u][v] && !seen[v])
         {
-            seen[v] = true; // Mark v as visited
- 
-            // If job 'v' is not assigned to an applicant OR
-            // previously assigned applicant for job v (which is matchR[v]) 
-            // has an alternate job available. 
-            // Since v is marked as visited in the above line, matchR[v] 
-            // in the following recursive call will not get job 'v' again
+            seen[v] = true;  
+            
             if (matchR[v] < 0 || bpm(bpGraph, matchR[v], seen, matchR))
             {
                 matchR[v] = u;
@@ -45,29 +38,21 @@ bool bpm(vector<vector<bool> >&bpGraph, int u, bool seen[], int matchR[])
     return false;
 }
  
-// Returns maximum number of matching from M to N
 int maxBPM(vector<vector<bool> >&bpGraph)
 {
-    // An array to keep track of the applicants assigned to
-    // jobs. The value of matchR[i] is the applicant number
-    // assigned to job i, the value -1 indicates nobody is
-    // assigned.
     int matchR[bpGraph[0].size()];
  
-    // Initially all jobs are available
     for(int i=0; i<bpGraph[0].size(); i++){
       matchR[i] = -1;
     } 
-    int result = 0; // Count of jobs assigned to applicants
+    int result = 0; 
     for (int u = 0; u < bpGraph.size(); u++)
     {
-        // Mark all jobs as not seen for next applicant.
         bool seen[bpGraph[0].size()];
  
         for(int i=0; i<bpGraph[0].size(); i++){
           seen[i] = 0;
         }
-        // Find if the applicant 'u' can get a job
         if (bpm(bpGraph, u, seen, matchR))
             result++;
     }
@@ -147,7 +132,6 @@ int main(){
 #endif
       int result = v - maxBPM(bip);
 
-      //to get maximum bipartite matching, we must consider vertices with less number of edges first. recursively assess
 #if DUMP
       cerr << endl<< "------------------------------------------" << endl;
       cerr << "RESULT IS: " << endl;
