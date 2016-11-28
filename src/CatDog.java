@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Scanner;
 
 public class CatDog {
 	
@@ -25,14 +26,9 @@ public class CatDog {
             
             if (bpGraph[u][v] && !seen[v])
             {
-                seen[v] = true; // Mark v as visited
+                seen[v] = true; 
  
-                // If job 'v' is not assigned to an applicant OR
-                // previously assigned applicant for job v (which
-                // is matchR[v]) has an alternate job available.
-                // Since v is marked as visited in the above line,
-                // matchR[v] in the following recursive call will
-                // not get job 'v' again
+               
                 if (matchR[v] < 0 || bpm(bpGraph, matchR[v],
                                          seen, matchR))
                 {
@@ -44,7 +40,7 @@ public class CatDog {
         return false;
     }
  
-    // Returns maximum number of matching from M to N
+   
     private static int maxBPM(boolean bpGraph[][])
     {
         int N = bpGraph.length;
@@ -73,48 +69,59 @@ public class CatDog {
  
     
     public static void main(String[] args) throws IOException{
-		
-		int n = Integer.getInteger(System.console().readLine());
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		System.err.println("N is " + Integer.toString(n));
 		for(int ITERATIONS=0;ITERATIONS<n;ITERATIONS++){
 			
 			int c,d,v;
-                        String line = System.console().readLine();
-                        String[] chars = line.split(" ");
-			c = Integer.getInteger(chars[0]);
-			d = Integer.getInteger(chars[1]);
-			v = Integer.getInteger(chars[2]);
-                        String[] catlovers = new String[c];
-                        String[] doglovers = new String[d];
-                        boolean[][] voters = new boolean[c][d];
-                        for(int i=0; i< c; i++){
-                           for(int j=0; j<d;j++){
-                               voters[i][j] = false;
-                           }
-                        }
-                        int currcat =0;
-                        int currdog=0;
-                        int currvote=0;
-			for(int votes =0; votes<v;votes++){
-                            String choice = System.console().readLine();
-                            if(choice.startsWith("C")){
-                                catlovers[currcat] = choice;
-                                currcat++;
-                            }
-                            else{
-                                doglovers[currdog] = choice;
-                                currdog++;
-                            }
+                      
+			c = sc.nextInt();
+			System.err.println("C is " + Integer.toString(c));
+			d = sc.nextInt();
+			System.err.println("D is " + Integer.toString(d));
+			v = sc.nextInt();
+			System.err.println("V is " + Integer.toString(v));
+            String[] catlovers = new String[c];
+            
+           String[] doglovers = new String[d];
+           boolean[][] voters = new boolean[c][d];
+           for(int i=0; i< c; i++){
+        	   for(int j=0; j<d;j++){
+        		   voters[i][j] = false;
+               }
+           }
+           
+           int currcat =0;
+           
+           int currdog=0;
+           
+           int currvote=0;
+           sc.nextLine();
+           for(int votes =0; votes<v;votes++){
+        	   String choice = sc.nextLine(); 
+        	   System.err.println("Choice is " + choice);
+               	
+        	   if(choice.startsWith("C")){
+               		catlovers[currcat] = choice;
+               		currcat++;
+                 }
+                 else{
+                	 doglovers[currdog] = choice;
+                     currdog++;
+                 }
                             //voters[currcat][currdog] = choice;
 			}                        
-                       for(int i=0; i< c; i++){
-                           for(int j=0; j<d;j++){
-                               if(findConflict(catlovers[i],doglovers[j])){
-                                   voters[i][j] = true;
-                               }
-                           }
-                       }
+            for(int i=0; i< c; i++){
+            	for(int j=0; j<d;j++){
+            		if(findConflict(catlovers[i],doglovers[j])){
+            			voters[i][j] = true;
+                    }
+                }
+            }
                        
-                       int result = v - maxBPM(voters);
+            int result = v - maxBPM(voters);
+            System.out.println(result);
 		}
 	}
 }
