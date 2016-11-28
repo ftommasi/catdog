@@ -20,7 +20,7 @@ bool findConflicts(string c, string d){
 
 }
 
-bool bpm(vector<vector<bool> >&bpGraph, int u, bool seen[], int matchR[])
+bool bpm(vector<vector<bool> >&bpGraph, int u, vector<bool>& seen, vector<int>& matchR)
 {
     for (int v = 0; v < bpGraph[0].size(); v++)
     {
@@ -41,19 +41,14 @@ bool bpm(vector<vector<bool> >&bpGraph, int u, bool seen[], int matchR[])
  
 int maxBPM(vector<vector<bool> >&bpGraph)
 {
-    int matchR[bpGraph[0].size()];
+    vector<int> matchR(bpGraph[0].size(),-1);
  
-    for(int i=0; i<bpGraph[0].size(); i++){
-      matchR[i] = -1;
-    } 
+    
     int result = 0; 
     for (int u = 0; u < bpGraph.size(); u++)
     {
-        bool seen[bpGraph[0].size()];
- 
-        for(int i=0; i<bpGraph[0].size(); i++){
-          seen[i] = 0;
-        }
+       vector<bool> seen(bpGraph[0].size(),0);
+       
         if (bpm(bpGraph, u, seen, matchR))
             result++;
     }
