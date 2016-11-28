@@ -196,7 +196,6 @@ int main(){
 #endif
       int maxbpm = maxBPM(bip);
       //int maxford = fordFulkerson(bip2,0,bip2.size());
-
       int result = v - maxbpm; 
 
 #if DUMP
