@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <string.h>
 
 using namespace std;
 
@@ -56,15 +55,18 @@ int maxBPM(vector<vector<bool> >&bpGraph)
     int matchR[bpGraph[0].size()];
  
     // Initially all jobs are available
-    memset(matchR, -1, sizeof(matchR));
- 
+    for(int i=0; i<bpGraph[0].size(); i++){
+      matchR[i] = -1;
+    } 
     int result = 0; // Count of jobs assigned to applicants
     for (int u = 0; u < bpGraph.size(); u++)
     {
         // Mark all jobs as not seen for next applicant.
         bool seen[bpGraph[0].size()];
-        memset(seen, 0, sizeof(seen));
  
+        for(int i=0; i<bpGraph[0].size(); i++){
+          seen[i] = 0;
+        }
         // Find if the applicant 'u' can get a job
         if (bpm(bpGraph, u, seen, matchR))
             result++;
@@ -157,75 +159,4 @@ int main(){
   }
 }
 
- #if 0 
-
-
-int s=0;
-int t=c;
-queue <int> q;
-q.push(s);
-visited[s] = true;
-parent[s] = -1;
-bool visited[V];
-memset(visited, 0, sizeof(visited));
-
-
-int u, v;
-bool bfs;
-int rGraph[c][d];  
-for (u = 0; u < c; u++)
-{
-  for (v = 0; v < d; v++)
-  {
-    rGraph[u][v] = (int)bip[u][v];
-  }
-}
-int parent[c];
-int max_flow = 0;
-
-while (bfs)
-{
-  
-  while (!q.empty())
-  {
-    int u = q.front();
-    q.pop();
-
-    for (int v=0; v<V; v++)
-    {
-      if (visited[v]==false && rGraph[u][v] > 0)
-      {
-        q.push(v);
-        parent[v] = u;
-        visited[v] = true;
-      }
-    }
-  }
-  bfs = visited[v];
-  q.push(s);
-}
-
-int path_flow = INT_MAX;
-for (v = t; v != s; v = parent[v])
-{
-  u = parent[v];
-  path_flow = min(path_flow, rGraph[u][v]);
-}
-for (v = t; v != s; v = parent[v])
-{
-  u = parent[v];
-  rGraph[u][v] -= path_flow;
-  rGraph[v][u] += path_flow;
-}
-max_flow += path_flow;
-}
-
-result = max_flow;
-
-    // Create a queue, enqueue source vertex and mark source vertex
-    // as visited
-        // Standard BFS Loop
-    #endif
-
-//----------------------------------------------------------------------------------------
 
