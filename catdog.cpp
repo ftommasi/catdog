@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
-#define DUMP 0
+#define DUMP 0 
 
 bool findConflicts(string c, string d){
   string catstart = c.substr(0,2);
@@ -59,9 +60,66 @@ int maxBPM(vector<vector<bool> >&bpGraph)
     return result;
 }
 
+bool bfs(vector<vector<int> > &rGraph,int s, int t, int parent[]){
+  bool visited[rGraph.size()];
+  for(int i=0; i < rGraph.size(); i++){
+   visited[i]=0;;
+  }
+  queue<int> q;
+  q.push(s);
+  visited[s] = true;
+  parent[s] = -1;
+
+  while(!q.empty()){
+    int u = q.front();
+    q.pop();
+    for(int v=0; v < rGraph.size(); v++){
+      if(visited[v]==false && rGraph[u][v] >0){
+        q.push(v);
+        parent[v] =u;
+        visited[v] = true;
+      }
+    }
+  }
+  return (visited[t]);
+}
+
+
+int fordFulkerson(vector<vector<int> >& graph,int s, int t){
+  //int rGraph[graph.size()][graph[0].size()];
+  vector<vector<int> > rGraph(graph);
+  int u,v;
+  for(u=0; u< graph.size(); u++){
+    for(v=0; v< graph[0].size(); v++){
+      //residual graph
+      //rGraph[u][v] = graph[u][v];
+    }
+  }
+
+  int parent[graph.size()];
+  int max_flow = 0;
+  while(bfs(rGraph,s,t,parent)){
+    int path_flow = 1; //max flow will always only be 1
+    for(v=t; v!=s; v = parent[v]){
+      u = parent[v];
+      rGraph[u][v] -= path_flow;
+      rGraph[v][u] += path_flow;
+    }
+    max_flow += path_flow;
+  }
+  return max_flow;
+}
+
 void initMatrix(vector<vector<bool> > &bpGraph,int rows, int cols){
   for(int i=0; i < rows; i ++){
       vector<bool> temp(cols,false);
+      bpGraph.push_back(temp);
+  }
+}
+
+void initMatrix2(vector<vector<int> > &bpGraph,int rows, int cols){
+  for(int i=0; i < rows; i ++){
+      vector<int> temp(cols,0);
       bpGraph.push_back(temp);
   }
 }
@@ -81,6 +139,8 @@ int main(){
 #endif
     vector<vector<bool> > bip;
 
+    vector<vector<int> > bip2;
+    
     vector<string> cats;
     vector<string> dogs;
     vector<string> voters;
@@ -101,11 +161,15 @@ int main(){
       }
         
     }
+    
     initMatrix(bip,cats.size(),dogs.size());
+
+    initMatrix2(bip2,cats.size(),dogs.size());
     for(int i=0; i < cats.size(); i++){
       for(int j=0; j < dogs.size(); j++){
         if(findConflicts(cats[i],dogs[j])){
-          bip[i][j] = true;    
+          bip[i][j] = true;
+          bip2[i][j] = 1;
         } 
       }
     }
@@ -130,7 +194,10 @@ int main(){
       cerr << endl<< "------------------------------------------";
       cerr << endl;
 #endif
-      int result = v - maxBPM(bip);
+      int maxbpm = maxBPM(bip);
+      //int maxford = fordFulkerson(bip2,0,bip2.size());
+
+      int result = v - maxbpm; 
 
 #if DUMP
       cerr << endl<< "------------------------------------------" << endl;
