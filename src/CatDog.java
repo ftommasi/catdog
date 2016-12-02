@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,80 +13,26 @@ public class CatDog {
         String firstend =   c.substring(3,5);
         String secondstart = d.substring(0,2);
         String secondend = d.substring(3,5);
-        /*
-        System.err.println("----------------------------");
-        System.err.println(c +" | "+d);
-        System.err.println("first " + firststart +"-"+secondend + " || " +firstend+"-"+secondstart);
-        System.err.println(firststart.compareTo(secondend) + " || " +  firstend.compareTo(secondstart)); 
-        System.err.println("----------------------------");
-        */
         if(firststart.compareTo(secondend) == 0 || firstend.compareTo(secondstart) ==0 ){
             return true;
         }
         return false;
     }
         
-    private static boolean bpm(boolean bpGraph[][], int u, boolean seen[], int matchR[],int n,int m){
-        int N = n;
-        int M = m; 
-        
-        for (int v = 0; v < N; v++){
-            
-            if (bpGraph[u][v] && !seen[v]){
-                seen[v] = true; 
- 
-               
-                if (matchR[v] < 0 || bpm(bpGraph, matchR[v], seen, matchR,N,M)){
-                    matchR[v] = u;
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    private static int maxBPM(boolean bpGraph[][],int n, int m){
-    	//M is cats, N is dogs
-        int N = n;
-        int M = m;
-        
-        //relational array flow from cat to dog
-        int matchR[] = new int[N];
- 
-        
-        for(int i=0; i<N; ++i)
-            matchR[i] = -1;
- 
-        int result = 0; 
-        for (int u = 0; u < M; u++){
-           
-            boolean seen[] =new boolean[N] ;
-            for(int i=0; i<N; ++i){
-                seen[i] = false;
-            }
- 
-            
-            if (bpm(bpGraph, u, seen, matchR,N,M)){
-                result++;
-            }
-        }
-        return result;
-    }
- 
  //standard bfs on adjacency matrix using queue   
- boolean bfs(int rGraph[][], int s, int t, int parent[],int Vsize){
+ static boolean bfs(int residualGraph[][], int s, int t, int parent[],int Vsize){
 	 int V = Vsize;
 	 boolean visited[] = new boolean[V];
-	 for(int i=0; i<V; ++i)
+	 for(int i=0; i<V; i++)
 		 visited[i]=false;
 	 LinkedList<Integer> queue = new LinkedList<Integer>();
 	 queue.add(s);
 	 visited[s] = true;
 	 parent[s]=-1;
-	 while (queue.size()!=0){
+	 while (!queue.isEmpty()){
 		 int u = queue.poll();
 		 for (int v=0; v<V; v++) {
-			 if (visited[v]==false && rGraph[u][v] > 0){
+			 if (visited[v]==false && residualGraph[u][v] > 0){
 				 queue.add(v);
 				 parent[v] = u;
 				 visited[v] = true;
@@ -96,60 +43,99 @@ public class CatDog {
  }
 
 
- int fordFulkerson(int graph[][], int s, int t,int Vsize){
+ static int  fordFulkerson(int graph[][], int s, int t,int Vsize,ArrayList<String> voters){
 	 int u, v;
 	 int V = Vsize;
 
-	 int rGraph[][] = new int[V][V];
+	 int residualGraph[][] = new int[V][V];
 
 	 for (u = 0; u < V; u++)
 		 for (v = 0; v < V; v++)
-			 rGraph[u][v] = graph[u][v];
+			 residualGraph[u][v] = graph[u][v];
 	 int parent[] = new int[V];
 
 	 int max_flow = 0;
 
-	 while (bfs(rGraph, s, t, parent,Vsize)){
+	 while (bfs(residualGraph, s, t, parent,Vsize)){
 		 int path_flow = Integer.MAX_VALUE;
 		 for (v=t; v!=s; v=parent[v]){
 			 u = parent[v];
-			 path_flow = Math.min(path_flow, rGraph[u][v]);
+			 path_flow = Math.min(path_flow, residualGraph[u][v]);
+                         
+                                 
 		 }
 		 for (v=t; v != s; v=parent[v]){
 			 u = parent[v];
-			 rGraph[u][v] -= path_flow;
-			 rGraph[v][u] += path_flow;
+			 residualGraph[u][v] -= path_flow; // reduce capacity
+			 residualGraph[v][u] += path_flow; //update reverse flow
+                         
 		 }
 
 		 max_flow += path_flow;
 	 }
+         /*
+         System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+         System.out.print("S | ");
+         for(int i=0; i< voters.size(); i++){
+             System.out.print(voters.get(i)+" | ");
+         }
+         System.out.print("T     |");
+         System.out.println("");
+           for(int i=0; i < V; i++){
+                for(int j=0; j < V; j++){
+                    System.out.print( residualGraph[i][j]+ " |     ");
+                }
+                System.out.println("");
+            }
+        System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+      
+         for(int i=1;i<V-2;i++){
+             
+                 if(residualGraph[0][i] == 1){ // check vertices that
+                     for(int j =1; j<V-2; j++){
+                         if(residualGraph[j][i] == 0){
+                            System.out.println("Keeping " + voters.get(i).substring(0, 2));
+                         }
+                     }
+                     
+                 }
+                 if(residualGraph[i][V-1] == 1){
+                     for(int j =0; j<V; j++){
+                         if(residualGraph[j][i] == 0){
+                            System.out.println("Keeping " + voters.get(i).substring(3, 5));
+                         }
+                     }
+                 }
+             
+         }
+         */
 	 return max_flow;
  }
     
     public static void main(String[] args) throws IOException{
-    	//System.setIn(new FileInputStream("in.txt")); // for local use only (eclipse)
-		Scanner sc = new Scanner(System.in);		
-		int n = Integer.parseInt(sc.next());
-		System.err.println("N is " + Integer.toString(n));
-		for(int ITERATIONS=0;ITERATIONS<n;ITERATIONS++){
+    Scanner sc = new Scanner(System.in);		
+    int n = Integer.parseInt(sc.next());
+    //System.err.println("N is " + Integer.toString(n));
+    for(int ITERATIONS=0;ITERATIONS<n;ITERATIONS++){
 			
-			int c,d,v;            
-			c = Integer.parseInt(sc.next());
-			System.err.println("C is " + Integer.toString(c));
-			d = Integer.parseInt(sc.next());
-			System.err.println("D is " + Integer.toString(d));
-			v = Integer.parseInt(sc.next());
-			System.err.println("V is " + Integer.toString(v));           
-		   
-			ArrayList<String> catlovers = new ArrayList<String>();
-		    ArrayList<String> doglovers = new ArrayList<String>();
-		    ArrayList<String> ALvoters = new ArrayList<String>();
-		    int[][] adjmat = new int[v][v];
-		    int [] adjlist = new int[v];
-		    
-		    for(int i=0; i < v; i++){
-		    	adjmat [i][i] = -1; //set diagonal to infinity
-		    }
+        int c,d,v;            
+        c = Integer.parseInt(sc.next());
+        //System.err.println("C is " + Integer.toString(c));
+        d = Integer.parseInt(sc.next());
+        //System.err.println("D is " + Integer.toString(d));
+        v = Integer.parseInt(sc.next());
+        //System.err.println("V is " + Integer.toString(v));           
+
+        ArrayList<String> ALvoters = new ArrayList<String>();
+        int[][] adjmat = new int[v+2][v+2];// +2 [0] is source [v+1] is sink
+       
+       
+        //initialize to zero
+        for(int i=0; i < v+2; i++){
+            for(int j=0; j < v+2; j++){
+                adjmat [i][j] = 0; 
+            }
+        }
 		       
            
          
@@ -157,105 +143,73 @@ public class CatDog {
         	   String choice = null;
         	   
         		   
-        	   choice = sc.next() +" " +sc.next();
+        	   choice = sc.next() + " " +sc.next();
         		  	   
         	   
-        	   System.err.println("Choice is " + choice);
-        	   
+        	   //System.err.println("Choice is " + choice);
+        	  /* 
         	   if(choice.startsWith("C")){
                		catlovers.add(choice);               		
                 }
                 else{
                 	 doglovers.add(choice);              
                 }
-        	   
+        	   */
         	   ALvoters.add(choice);
         	   
 
 			}
-          
-           //adjmat building
-           for(int i=0; i < ALvoters.size(); i++){
-    		   for(int j=0; j < ALvoters.size();j++){
-    			   if(i!=j){
-    				   if(findConflict(ALvoters.get(i),ALvoters.get(j))){
-    					   adjmat[i][j] = 1;
-    					   adjmat[j][i] = 1; //mirror accross diagonal
-    				   }
-    			   }
-    		   }
-    		   
-    	   }
-           
-           //adjlist building
-           
-           boolean[][] voters = new boolean[catlovers.size()][doglovers.size()];
-           
-           for(int i = 0; i < catlovers.size(); i++){
-        	   for(int j = 0; j < doglovers.size(); j++){
-        		   voters[i][j] = false;
-        		   
-        	   }
-           }
-           
-           for(int i = 0; i < catlovers.size(); i++){
-        	   for(int j = 0; j < doglovers.size(); j++){
-        		   if(findConflict(catlovers.get(i),doglovers.get(j))){
-           			voters[i][j] = true;
-           			
-                   }
-        		   
-               }
-        	   
-      
-           
-           /*
-           //+1 because 0 = source and size() = sink
-           int[][] ivoters = new int[catlovers.size()+1][doglovers.size()+1];   
-    	   for(int i = 0; i < catlovers.size()+1; i++){
-        	   for(int j = 0; j < doglovers.size()+1; j++){
-        		   ivoters[i][j]=0;
-        	   }
-        	}
-    	   //set flow from super sink and super source to 1
-    	   for(int j = 0; j < doglovers.size()+1; j++){
-    		   ivoters[0][j] = 1;
-    		   ivoters[catlovers.size()][j] = 1;
-    	   }
-    	   
-    	   for(int i = 0; i < catlovers.size(); i++){
-        	   for(int j = 0; j < doglovers.size(); j++){
-        		   if(findConflict(catlovers.get(i),doglovers.get(j))){
-           			ivoters[i+1][j+1] = 1;
-           			
-                   }
-        		   
-               }
-               */
-    	   }
-            /*
-            System.err.print("xxxxx| ");
-            for(int i=0; i< currcat; i++){
-            	System.err.print(catlovers.get(i) + " | ");
+           //dont need to worry about adjmat[0][v+1] or adjmat[v+1][0] (s & t) 
+        for(int i=1; i < v+1; i++){
+            //link cat lovers to source (left bipartite)
+            if(ALvoters.get(i-1).startsWith("C")){
+                adjmat[0][i] = 1;
+                
             }
-            System.err.println("");
-            int dogs = 0;
-            for(int i=0; i< currcat; i++){
-            	//System.err.print(doglovers.get(dogs) + "| ");
-            	int newdogs = dogs+1;
-            	dogs = newdogs >= doglovers.size()-1 ? doglovers.size(): newdogs;
-            	for(int j=0; j<currdog;j++){
-              			System.err.print(voters[i][j] + "  | ");
-              			
-                    }
-            	System.err.println("");
+            //connect doglovers to sink (right bipartite)
+            if(ALvoters.get(i-1).startsWith("D")){
+                adjmat[i][v+1] = 1;
+                
+            }
+        }
+        // the source will never have a direct edge to the sink
+        //adjmat[0][v+1] = 0 ;
+        //adjmat[v+1][0] = 0 ;
+        
+         //adjmat building (ALvoters.size() == v)
+         
+        for(int i=1; i < ALvoters.size()+1; i++){
+            for(int j = 1; j < ALvoters.size()+1;j++){
+                if(i!=j){
+                    if(findConflict(ALvoters.get(i-1),ALvoters.get(j-1)) ){                        
+                        if(ALvoters.get(i-1).startsWith("C")){
+                            adjmat[i][j] = 1;
+                        }
+                        else{
+                            adjmat[j][i] = 1;
+                        }
+                    }                    
+                
+                }   
+                
+            }    	
+        }
+        
+        
+         
+        
+/*
+            for(int i=0; i < v+2; i++){
+                for(int j=0; j < v+2; j++){
+                   System.out.print( adjmat[i][j]+ " ");
                 }
-              */       
-            int result = maxBPM(voters,doglovers.size(),catlovers.size());            
-            System.err.print(v +" ");  
-            System.err.print(result + " ");            
-            System.out.println(v-result);
+                System.out.println("");
+            }
+            */
+            int result = fordFulkerson(adjmat,0,v+1,v+2,ALvoters);     
+            //int result = FaustoBPM(ivoters,catlovers.size(),doglovers.size());
+            System.out.println(v - result);
            
-		}
 	}
+    }
 }
